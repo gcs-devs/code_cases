@@ -52,13 +52,19 @@ def timestamp_conversion(secs):
 
 @app.get('/relatorio', response_model=List[Dict])
 def relatorio_corrida():
-    # Chame a função principal aqui e retorne o relatório como JSON
-    log = read_filename('log_corrida.csv')
-    result = log_processing(log)
-    position = finish_position_calculate(result)
-    report = log_report(position)
-    return report
-
+    try:
+        # Chame a função principal aqui e retorne o relatório como JSON
+        log = read_filename('log_corrida.csv')
+        result = log_processing(log)
+        position = finish_position_calculate(result)
+        report = log_report(position)
+        return report
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Arquivo de log não encontrado")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro interno do servidor")
 
 if __name__ == "__main__":
     import uvicorn

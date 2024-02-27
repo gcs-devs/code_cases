@@ -57,9 +57,16 @@ def main():
 
 @app.route('/relatorio', methods=['GET'])
 def relatorio_corrida():
-    # Chame a função principal aqui e retorne o relatório como JSON
-    relatorio = main()
-    return jsonify(relatorio)
+    try:
+        # Chame a função principal aqui e retorne o relatório como JSON
+        relatorio = main()
+        return jsonify(relatorio)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Arquivo de log não encontrado")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro interno do servidor")
 
 if __name__ == "__main__":
     app.run(debug=True)

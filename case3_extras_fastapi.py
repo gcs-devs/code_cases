@@ -73,13 +73,20 @@ def timestamp_conversion(secs):
 @app.get('/relatorio', response_model=List[Dict])
 def relatorio_corrida():
     # Chame a função principal aqui e retorne o relatório como JSON
-    log = read_filename('log_corrida.csv')
-    result, hero_laps = log_processing(log)
-    positions = finish_position_calculate(result)
-    hero_best = hero_best_calculate(hero_laps)
-    lap_best = lap_best_calculate(hero_laps)
-    report = log_report(positions, hero_best, lap_best)
-    return report
+    try:
+        log = read_filename('log_corrida.csv')
+        result, hero_laps = log_processing(log)
+        positions = finish_position_calculate(result)
+        hero_best = hero_best_calculate(hero_laps)
+        lap_best = lap_best_calculate(hero_laps)
+        report = log_report(positions, hero_best, lap_best)
+        return report
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Arquivo de log não encontrado")
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro interno do servidor")
 
 # Exemplo de uso
 if __name__ == "__main__":
