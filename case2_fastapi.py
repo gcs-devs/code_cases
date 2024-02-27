@@ -11,6 +11,18 @@ class ImageCounter:
         self.counter_dict = {i: 0 for i in range(16)}  # Inicializa contadores
 
     def count_elements(self, vector):
+    	# Verificando erros
+        if not self.image:
+            raise ValueError("A matriz de bitmap está vazia.")
+
+        if not vector:
+            raise ValueError("O vetor de entrada está vazio.")
+
+        # Verifica se todos os elementos do vetor estão dentro do intervalo permitido
+        for element in vector:
+            if not 0 <= element <= 15:
+                raise ValueError(f"O elemento {element} está fora do intervalo permitido [0, 15].")
+
         # Zera as contagens
         self.counter_dict = {i: 0 for i in range(16)}
         
@@ -31,19 +43,22 @@ class VectorInput(BaseModel):
 async def counter_api(vector_input: VectorInput):
     inputs = vector_input.vector
     
-    # Exemplo de matriz de pixels
-    image = [
-        [0, 1, 2, 3],
-        [4, 5, 6, 7],
-        [8, 9, 10, 11],
-        [12, 13, 14, 15]
-    ]
+    try:
+        # Exemplo de matriz de pixels
+        image = [
+            [0, 1, 2, 3],
+            [4, 5, 6, 7],
+            [8, 9, 10, 11],
+            [12, 13, 14, 15]
+        ]
 
-    # Instancia a classe ImageCounter para contar os elementos
-    image_counter = ImageCounter(image)
-    counter_dict = image_counter.count_elements(inputs)
+        # Instancia a classe ImageCounter para contar os elementos
+        image_counter = ImageCounter(image)
+        counter_dict = image_counter.count_elements(inputs)
 
-    return counter_dict
+        return counter_dict
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
 
 
 # Definindo porta alternativa para o app
